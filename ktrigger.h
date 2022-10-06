@@ -7,7 +7,7 @@ struct config_s {
 	char*	dir;
 	char*	command;
 	bool	loop;
-	short	filter;
+	int	filter;
 };
 
 void usage(char*);
