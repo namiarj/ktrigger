@@ -8,11 +8,10 @@
 
 #include "ktrigger.h"
 
-char *usage_msg = "usage: %s dir command\n";
-
 void
 usage(char *program_name)
 {
+	char *usage_msg = "usage: %s [-l] dir command\n";
 	printf(usage_msg, program_name);
 	exit(1);
 }
