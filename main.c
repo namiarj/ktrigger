@@ -3,7 +3,7 @@
 int
 main(int argc, char **argv)
 {
-	struct config_s config;
+	struct config config;
 	init_config(&config);
 	parse_cmd(&config, argc, argv);
 	int ret;
