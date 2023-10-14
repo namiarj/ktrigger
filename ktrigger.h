@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-struct config_s {
+struct config {
 	char*	dir;
 	char*	command;
 	bool	loop;
@@ -11,8 +11,8 @@ struct config_s {
 };
 
 void usage(char*);
-void init_config(struct config_s*);
-void parse_cmd(struct config_s*, int, char**);
+void init_config(struct config*);
+void parse_cmd(struct config*, int, char**);
 int run_trigger(char*, char*, int);
 
 #endif	/* KTRIGGER_H */
