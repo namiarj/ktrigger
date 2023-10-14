@@ -17,14 +17,14 @@ usage(char *program_name)
 }
 
 void
-init_config(struct config_s *config)
+init_config(struct config *config)
 {
 	config->loop = false;
 	config->filter = EVFILT_VNODE;
 }
 
 void
-parse_cmd(struct config_s *config, int argc, char **argv) 
+parse_cmd(struct config *config, int argc, char **argv) 
 {
 	if (argc < 3)
 		usage(argv[0]);
