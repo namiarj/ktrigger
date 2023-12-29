@@ -1,5 +1,5 @@
 PROG = ktrigger
 SRCS = ktrigger.c main.c
-NOMAN =
+MAN =
 
 .include <bsd.prog.mk>
