@@ -21,10 +21,35 @@ get_event(char *arg)
 static short
 get_filter(char *arg)
 {
-	if (strcmp(arg, "vnode") == 0)
+	char *filters[] = {"read", "write", "empty", "aio", "vnode",
+		"proc", "procdesc", "signal", "timer"};
+	int index = -1;
+	for (int i = 0; i < (sizeof filters / sizeof filters[0]); i++)
+		if (strcmp(arg, filters[i]) == 0)
+			index = i;
+
+	switch (index) {
+	case 0:
+		return EVFILT_READ;
+	case 1:
+		return EVFILT_WRITE;
+	case 2:
+		return EVFILT_EMPTY;
+	case 3:
+		return EVFILT_AIO;
+	case 4:
 		return EVFILT_VNODE;
-	else
-		exit(1);
+	case 5:
+		return EVFILT_PROC;
+	case 6:
+		return EVFILT_PROCDESC;
+	case 7:
+		return EVFILT_SIGNAL;
+	case 8:
+		return EVFILT_TIMER;
+	default:
+		usage();
+	}
 }
 
 static void
