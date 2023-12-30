@@ -8,57 +8,56 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "ktrigger.h"
 
-void
-usage(char *program_name)
-{
-	char *usage_msg = "usage: %s [-l] dir command\n";
-	printf(usage_msg, program_name);
-	exit(1);
-}
+#define SUPPORTED_FLAGS "f:l:d:c:"
 
-void
-init_config(struct config *config)
+static void
+usage()
 {
-	config->loop = false;
-	config->filter = EVFILT_VNODE;
+	char *usage_msg = "usage: ktrigger -f filter [-l count] [-d dir] [-c command]\n";
+	fputs(usage_msg, stderr);
+	exit(1);
 }
 
 void
 parse_cmd(struct config *config, int argc, char **argv) 
 {
-	if (argc < 3)
-		usage(argv[0]);
+	config->command = config->dir = NULL;
+	config->filter = 0;
+	config->loop = 0;
 
-	config->dir = argv[argc-2];
-	config->command = argv[argc-1];
-
-	if (argc == 3)
-		return;
-
-	// Parsing parameters
-	for (int i = 1; i < argc-2; i++) 
-		if (argv[i][0] == '-') {
-			switch (argv[i][1]) {
-			case 'l':
-				config->loop = true;
-				break;
-			default:
-				printf("unrecognized parameter '%s'\n", argv[i]);
-				usage(argv[0]);
-
-			}
-		} else {
-			printf("unrecognized '%s'\n", argv[i]);
-			usage(argv[0]);
+	int ch;
+	while ((ch = getopt(argc, argv, SUPPORTED_FLAGS)) != -1) {
+		switch (ch) {
+		case 'c':
+			config->command = optarg;
+			break;
+		case 'd':
+			config->dir = optarg;
+			break;
+		case 'f':
+			config->filter = EVFILT_VNODE;
+			break;
+		case 'l':
+			sscanf(optarg, "%d", &config->loop);
+			break;
+		default:
+			usage();
 		}
+	}
 
+	if (!config->filter)
+		usage();
+		
+	if (!config->dir)
+		usage();
 }
 
 int
-run_trigger(char *dir, char *command, int filter)
+run_trigger(char *dir, char *command, short filter)
 {
 	struct kevent event;
 	struct kevent tevent;
@@ -73,6 +72,7 @@ run_trigger(char *dir, char *command, int filter)
 		err(1, "kqueue() failed");
 
 	EV_SET(&event, fd, filter, EV_ADD | EV_CLEAR, NOTE_WRITE, 0, NULL);
+
 	ret = kevent(kq, &event, 1, NULL, 0, NULL);
 	if (ret == -1)
 		err(1, "kevent register");
@@ -83,6 +83,12 @@ run_trigger(char *dir, char *command, int filter)
 	ret = kevent(kq, NULL, 0, &tevent, 1, NULL);
 	if (ret == -1)
 		err(1, "kevent wait");
-	ret = system(command);
-	return (ret);
+
+	if (command) {
+		ret = system(command);
+		return (ret);
+	}
+
+	return (0);
+
 }

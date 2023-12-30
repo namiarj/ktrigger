@@ -1,18 +1,15 @@
 #ifndef KTRIGGER_H
 #define KTRIGGER_H
 
-#include <stdbool.h>
-
 struct config {
 	char*	dir;
 	char*	command;
-	bool	loop;
-	int	filter;
+	int	loop;
+	short	filter;
 };
 
-void usage(char*);
-void init_config(struct config*);
+static void usage();
 void parse_cmd(struct config*, int, char**);
-int run_trigger(char*, char*, int);
+int run_trigger(char*, char*, short);
 
 #endif	/* KTRIGGER_H */

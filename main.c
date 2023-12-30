@@ -3,12 +3,17 @@
 int
 main(int argc, char **argv)
 {
-	struct config config;
-	init_config(&config);
-	parse_cmd(&config, argc, argv);
 	int ret;
-	do {
-		ret = run_trigger(config.dir, config.command, config.filter);
-	} while (config.loop);
+	struct config config;
+	parse_cmd(&config, argc, argv);
+loop:
+	ret = run_trigger(config.dir, config.command, config.filter);
+
+	if (config.loop == -1)
+		goto loop;
+
+	if (config.loop > 0 && --config.loop)
+		goto loop;
+
 	return (ret);
 }
