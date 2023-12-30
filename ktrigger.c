@@ -12,8 +12,6 @@
 
 #include "ktrigger.h"
 
-#define SUPPORTED_FLAGS "f:l:d:c:"
-
 static void
 usage()
 {
@@ -30,7 +28,7 @@ parse_cmd(struct config *config, int argc, char **argv)
 	config->loop = 0;
 
 	int ch;
-	while ((ch = getopt(argc, argv, SUPPORTED_FLAGS)) != -1) {
+	while ((ch = getopt(argc, argv, "f:l:d:c:")) != -1) {
 		switch (ch) {
 		case 'c':
 			config->command = optarg;
