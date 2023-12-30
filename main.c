@@ -9,10 +9,7 @@ main(int argc, char **argv)
 loop:
 	ret = run_trigger(config.dir, config.command, config.filter);
 
-	if (config.loop == -1)
-		goto loop;
-
-	if (config.loop > 0 && --config.loop)
+	if (config.loop < 0 || (config.loop > 0 && --config.loop))
 		goto loop;
 
 	return (ret);
