@@ -4,12 +4,12 @@ int
 main(int argc, char **argv)
 {
 	int ret;
-	struct config config;
-	parse_cmd(&config, argc, argv);
+	struct ktrigger kt;
+	parse_cmd(&kt, argc, argv);
 loop:
-	ret = run_trigger(config.dir, config.command, config.filter);
+	ret = run_trigger(&kt);
 
-	if (config.loop < 0 || (config.loop > 0 && --config.loop))
+	if (kt.loop < -1 || (kt.loop > 0 && --kt.loop))
 		goto loop;
 
 	return (ret);

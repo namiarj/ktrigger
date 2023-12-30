@@ -1,15 +1,20 @@
 #ifndef KTRIGGER_H
 #define KTRIGGER_H
 
-struct config {
+#include <sys/types.h>
+
+struct ktrigger {
 	char*	dir;
-	char*	command;
+	char*	cmd;
 	int	loop;
 	short	filter;
+	u_int	fflags;
 };
 
+static u_int get_event(char*);
+static short get_filter(char*);
 static void usage();
-void parse_cmd(struct config*, int, char**);
-int run_trigger(char*, char*, short);
+void parse_cmd(struct ktrigger*, int, char**);
+int run_trigger(struct ktrigger*);
 
 #endif	/* KTRIGGER_H */

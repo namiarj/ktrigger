@@ -12,64 +12,79 @@
 
 #include "ktrigger.h"
 
+static u_int
+get_event(char *arg)
+{
+	return NOTE_WRITE;
+}
+
+static short
+get_filter(char *arg)
+{
+	if (strcmp(arg, "vnode") == 0)
+		return EVFILT_VNODE;
+	else
+		exit(1);
+}
+
 static void
 usage()
 {
-	char *usage_msg = "usage: ktrigger -f filter [-l count] [-d dir] [-c command]\n";
+	char *usage_msg = "usage: ktrigger -f filter [-e fflag] [-l count] [-d dir] [-c command]\n";
 	fputs(usage_msg, stderr);
 	exit(1);
 }
 
 void
-parse_cmd(struct config *config, int argc, char **argv) 
+parse_cmd(struct ktrigger *kt, int argc, char **argv) 
 {
-	config->command = config->dir = NULL;
-	config->filter = 0;
-	config->loop = 0;
+	kt->cmd = kt->dir = NULL;
+	kt->fflags = kt->loop = kt->filter = 0;
 
 	int ch;
-	while ((ch = getopt(argc, argv, "f:l:d:c:")) != -1) {
+	while ((ch = getopt(argc, argv, "f:e:l:d:c:")) != -1) {
 		switch (ch) {
 		case 'c':
-			config->command = optarg;
+			kt->cmd = optarg;
 			break;
 		case 'd':
-			config->dir = optarg;
+			kt->dir = optarg;
+			break;
+		case 'e':
+			kt->fflags |= get_event(optarg);
 			break;
 		case 'f':
-			config->filter = EVFILT_VNODE;
+			kt->filter = get_filter(optarg);
 			break;
 		case 'l':
-			sscanf(optarg, "%d", &config->loop);
+			sscanf(optarg, "%d", &kt->loop);
 			break;
 		default:
 			usage();
 		}
 	}
 
-	if (!config->filter)
+	if (!kt->fflags || !kt->filter || !kt->dir)
 		usage();
-		
-	if (!config->dir)
-		usage();
+
 }
 
 int
-run_trigger(char *dir, char *command, short filter)
+run_trigger(struct ktrigger *kt)
 {
 	struct kevent event;
 	struct kevent tevent;
 	int kq, fd, ret;
 
-	fd = open(dir, O_RDONLY);
+	fd = open(kt->dir, O_RDONLY);
 	if (fd == -1)
-		err(1, "Failed to open '%s'", dir);
+		err(1, "Failed to open '%s'", kt->dir);
 
 	kq = kqueue();
 	if (kq == -1)
 		err(1, "kqueue() failed");
 
-	EV_SET(&event, fd, filter, EV_ADD | EV_CLEAR, NOTE_WRITE, 0, NULL);
+	EV_SET(&event, fd, kt->filter, EV_ADD | EV_CLEAR, kt->fflags, 0, NULL);
 
 	ret = kevent(kq, &event, 1, NULL, 0, NULL);
 	if (ret == -1)
@@ -82,8 +97,8 @@ run_trigger(char *dir, char *command, short filter)
 	if (ret == -1)
 		err(1, "kevent wait");
 
-	if (command) {
-		ret = system(command);
+	if (kt->cmd) {
+		ret = system(kt->cmd);
 		return (ret);
 	}
 
