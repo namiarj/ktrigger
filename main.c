@@ -9,7 +9,7 @@ main(int argc, char **argv)
 loop:
 	ret = run_trigger(&kt);
 
-	if (kt.loop < -1 || (kt.loop > 0 && --kt.loop))
+	if (kt.loop < 0 || (kt.loop > 0 && --kt.loop))
 		goto loop;
 
 	return (ret);
