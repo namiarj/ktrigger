@@ -22,14 +22,14 @@ static short
 get_filter(const char *arg)
 {
 	const short filter[] = {EVFILT_READ, EVFILT_WRITE, EVFILT_EMPTY, EVFILT_AIO,
-		EVFILT_VNODE, EVFILT_PROC, EVFILT_PROCDESC, EVFILT_SIGNAL, EVFILT_TIMER}
+		EVFILT_VNODE, EVFILT_PROC, EVFILT_PROCDESC, EVFILT_SIGNAL, EVFILT_TIMER};
 
 	const char *filter_arg[] = {"read", "write", "empty", "aio", "vnode",
 		"proc", "procdesc", "signal", "timer"};
 
 	for (int i = 0; i < (sizeof filter / sizeof filter[0]); i++)
-		if (strcmp(arg, filter_arg[i]) == 0) {
-			return (filter[i])
+		if (strcmp(arg, filter_arg[i]) == 0)
+			return (filter[i]);
 	usage();
 	return (1);
 }
