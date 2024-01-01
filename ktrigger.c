@@ -13,49 +13,53 @@
 #include "ktrigger.h"
 
 static u_int
-get_event(char *arg)
+get_event(const char *arg)
 {
 	return NOTE_WRITE;
 }
 
 static short
-get_filter(char *arg)
+get_filter(const char *arg)
 {
-	char *filters[] = {"read", "write", "empty", "aio", "vnode",
+	const char *filters[] = {"read", "write", "empty", "aio", "vnode",
 		"proc", "procdesc", "signal", "timer"};
+
 	int index = -1;
 	for (int i = 0; i < (sizeof filters / sizeof filters[0]); i++)
-		if (strcmp(arg, filters[i]) == 0)
+		if (strcmp(arg, filters[i]) == 0) {
 			index = i;
+			break;
+		}
 
 	switch (index) {
 	case 0:
-		return EVFILT_READ;
+		return (EVFILT_READ);
 	case 1:
-		return EVFILT_WRITE;
+		return (EVFILT_WRITE);
 	case 2:
-		return EVFILT_EMPTY;
+		return (EVFILT_EMPTY);
 	case 3:
-		return EVFILT_AIO;
+		return (EVFILT_AIO);
 	case 4:
-		return EVFILT_VNODE;
+		return (EVFILT_VNODE);
 	case 5:
-		return EVFILT_PROC;
+		return (EVFILT_PROC);
 	case 6:
-		return EVFILT_PROCDESC;
+		return (EVFILT_PROCDESC);
 	case 7:
-		return EVFILT_SIGNAL;
+		return (EVFILT_SIGNAL);
 	case 8:
-		return EVFILT_TIMER;
+		return (EVFILT_TIMER);
 	default:
 		usage();
 	}
+	return (0);
 }
 
 static void
 usage()
 {
-	char *usage_msg = "usage: ktrigger -f filter [-e fflag] [-l count] [-d dir] [-c command]\n";
+	const char *usage_msg = "usage: ktrigger -f filter [-e fflag] [-l count] [-d dir] [-c command]\n";
 	fputs(usage_msg, stderr);
 	exit(1);
 }
@@ -67,7 +71,7 @@ parse_cmd(struct ktrigger *kt, int argc, char **argv)
 	kt->fflags = kt->loop = kt->filter = 0;
 
 	int ch;
-	while ((ch = getopt(argc, argv, "f:e:l:d:c:")) != -1) {
+	while ((ch = getopt(argc, argv, "f:e:l:d:t:c:")) != -1) {
 		switch (ch) {
 		case 'c':
 			kt->cmd = optarg;
@@ -84,12 +88,16 @@ parse_cmd(struct ktrigger *kt, int argc, char **argv)
 		case 'l':
 			sscanf(optarg, "%d", &kt->loop);
 			break;
+		case 't':
 		default:
 			usage();
 		}
 	}
 
-	if (!kt->fflags || !kt->filter || !kt->dir)
+	if (!kt->filter)
+		usage();
+
+	if (kt->filter == EVFILT_VNODE && !kt->fflags)
 		usage();
 
 }
