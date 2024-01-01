@@ -6,11 +6,8 @@ main(int argc, char **argv)
 	int ret;
 	struct ktrigger kt;
 	parse_cmd(&kt, argc, argv);
-loop:
-	ret = run_trigger(&kt);
-
-	if (kt.loop < 0 || (kt.loop > 0 && --kt.loop))
-		goto loop;
-
+	do {
+		ret = run_trigger(&kt);
+	} while (kt.loop < 0 || (kt.loop > 0 && --kt.loop));
 	return (ret);
 }
