@@ -15,7 +15,7 @@
 static u_int
 get_event(const char *arg)
 {
-	return NOTE_WRITE;
+	return (NOTE_WRITE);
 }
 
 static short
